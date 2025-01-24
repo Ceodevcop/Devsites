@@ -1,4 +1,4 @@
-name: Deploy Devsite
+name: Deploy Devsites
 on:
   push:
     branches:
