@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.secret_key = 'devsite_secret_key'  # Secure secret key for sessions
+app.secret_key = 'devcxxp_secret_key'  # Secure secret key for sessions
 
 # Initialize database
 def init_db():
@@ -25,10 +26,11 @@ def register():
         username = request.form['username']
         password = request.form['password']
         is_admin = request.form.get('is_admin', '0') == '1'
+        hashed_password = generate_password_hash(password)
         try:
             with sqlite3.connect('users.db') as conn:
                 conn.execute('INSERT INTO users (username, password, is_admin) VALUES (?, ?, ?)',
-                             (username, password, is_admin))
+                             (username, hashed_password, is_admin))
                 conn.commit()
             return redirect(url_for('home'))
         except sqlite3.IntegrityError:
@@ -41,8 +43,8 @@ def login():
         username = request.form['username']
         password = request.form['password']
         with sqlite3.connect('users.db') as conn:
-            user = conn.execute('SELECT * FROM users WHERE username=? AND password=?', (username, password)).fetchone()
-            if user:
+            user = conn.execute('SELECT * FROM users WHERE username=?', (username,)).fetchone()
+            if user and check_password_hash(user[2], password):
                 session['user_id'] = user[0]
                 session['is_admin'] = user[3]
                 if user[3]:  # If the user is an admin
@@ -74,4 +76,3 @@ def logout():
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)
-
