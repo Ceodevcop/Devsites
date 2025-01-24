@@ -1,6 +1,12 @@
 version: 2
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: "pip" # Dependency manager (Python's pip)
+    directory: "/"           # Location of the requirements.txt file
     schedule:
-      interval: "monthly"
+      interval: "weekly"     # Check for updates weekly
+    commit-message:
+      prefix: "deps"         # Prefix for dependency update commits
+    open-pull-requests-limit: 5 # Limit the number of open PRs for updates
+    ignore:
+      - dependency-name: "Flask"
+        versions: ["2.0.0"]  # Example: Ignore updates to Flask version 2.0.0
